@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Student Management System</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --ink-soft:#4b5566;
+    --paper:#f6f5f1;
+    --panel:#ffffff;
+    --line:#dedad0;
+    --ledger:#2f5233;
+    --ledger-deep:#1f3a23;
+    --brass:#a8763e;
+    --brass-deep:#8a5f2f;
+    --danger:#8c3a2b;
+    --danger-bg:#f5e6e1;
+    --ok-bg:#e6ede4;
+    --focus:#2f5233;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    min-height:100vh;
+    line-height:1.4;
+  }
+  ::selection{background:#d8dfce;}
+  a{color:var(--ledger-deep);}
+
+  .frame{
+    max-width:1080px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:3px double var(--ink);
+    padding-bottom:14px;
+    margin-bottom:26px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .masthead h1{
+    font-size:1.65rem;
+    margin:0;
+    letter-spacing:0.01em;
+    font-weight:600;
+  }
+  .masthead .ledger-no{
+    font-family:"Courier New",monospace;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    letter-spacing:0.04em;
+  }
+  .session-strip{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:0.82rem;
+    color:var(--ink-soft);
+  }
+  .session-strip strong{color:var(--ink);}
+  .btn-quiet{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:5px 10px;
+    border-radius:var(--radius);
+    font-family:inherit;
+    font-size:0.78rem;
+    cursor:pointer;
+  }
+  .btn-quiet:hover{border-color:var(--ink-soft); color:var(--ink);}
+
+  /* ---------- Auth gate ---------- */
+  #gate{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    max-width:560px;
+    margin:0 auto;
+  }
+  .gate-tabs{
+    display:flex;
+    border-bottom:1px solid var(--line);
+  }
+  .gate-tab{
+    flex:1;
+    text-align:center;
+    padding:10px 4px;
+    cursor:pointer;
+    font-size:0.92rem;
+    color:var(--ink-soft);
+    border-bottom:2px solid transparent;
+    background:none;
+    border-top:none;border-left:none;border-right:none;
+    font-family:inherit;
+  }
+  .gate-tab.active{
+    color:var(--ledger-deep);
+    border-bottom-color:var(--ledger-deep);
+    font-weight:600;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+  }
+  .card h2{
+    margin:0 0 4px;
+    font-size:1.15rem;
+  }
+  .card .sub{
+    color:var(--ink-soft);
+    font-size:0.85rem;
+    margin:0 0 18px;
+  }
+  .field{
+    margin-bottom:14px;
+  }
+  .field label{
+    display:block;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .field input, .field select{
+    width:100%;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    font-family:inherit;
+    font-size:0.95rem;
+    background:#fdfcf9;
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus{
+    outline:2px solid var(--focus);
+    outline-offset:1px;
+  }
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .btn-primary{
+    width:100%;
+    padding:10px 14px;
+    background:var(--ledger);
+    color:#f6f5f1;
+    border:none;
+    border-radius:var(--radius);
+    font-family:inherit;
+    font-size:0.95rem;
+    cursor:pointer;
+    letter-spacing:0.01em;
+  }
+  .btn-primary:hover{background:var(--ledger-deep);}
+  .btn-primary:disabled{background:#9aa79c; cursor:default;}
+  .link-btn{
+    background:none;border:none;color:var(--ledger-deep);
+    font-family:inherit;font-size:0.82rem;cursor:pointer;padding:0;
+    text-decoration:underline;
+  }
+  .msg{
+    margin-top:12px;
+    padding:9px 12px;
+    border-radius:var(--radius);
+    font-size:0.85rem;
+  }
+  .msg.err{background:var(--danger-bg); color:var(--danger); border:1px solid #d8b8ac;}
+  .msg.ok{background:var(--ok-bg); color:var(--ledger-deep); border:1px solid #b9cdb3;}
+  .hidden{display:none !important;}
+
+  /* ---------- API config strip ---------- */
+  .api-strip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.76rem;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+    justify-content:center;
+  }
+  .api-strip input{
+    font-family:"Courier New",monospace;
+    font-size:0.76rem;
+    padding:3px 6px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    width:220px;
+    background:#fdfcf9;
+  }
+
+  /* ---------- Dashboard shell ---------- */
+  #dash{max-width:1080px; margin:0 auto;}
+  .tabs{
+    display:flex;
+    gap:2px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    padding:9px 16px;
+    font-size:0.86rem;
+    background:none;
+    border:1px solid transparent;
+    border-bottom:none;
+    cursor:pointer;
+    color:var(--ink-soft);
+    font-family:inherit;
+    border-radius:var(--radius) var(--radius) 0 0;
+    margin-bottom:-1px;
+  }
+  .tab.active{
+    color:var(--ink);
+    background:var(--panel);
+    border-color:var(--line);
+    font-weight:600;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .panel h3{
+    margin:0 0 3px;
+    font-size:1.02rem;
+  }
+  .panel .sub{color:var(--ink-soft); font-size:0.82rem; margin:0 0 16px;}
+  .panel-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:760px){
+    .panel-grid{grid-template-columns:1fr;}
+    .row2{grid-template-columns:1fr;}
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.86rem;
+  }
+  th,td{
+    text-align:left;
+    padding:7px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  th{
+    color:var(--ink-soft);
+    font-weight:600;
+    font-size:0.75rem;
+    letter-spacing:0.02em;
+    border-bottom:1px solid var(--ink);
+  }
+  tr:last-child td{border-bottom:none;}
+  .pill{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:10px;
+    font-size:0.72rem;
+    font-weight:600;
+  }
+  .pill.pending{background:#f2e6cf; color:var(--brass-deep);}
+  .pill.approved, .pill.completed, .pill.enrolled{background:var(--ok-bg); color:var(--ledger-deep);}
+  .pill.rejected, .pill.failed, .pill.dropped{background:var(--danger-bg); color:var(--danger);}
+  .stat-row{
+    display:flex;
+    gap:18px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .stat{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px 16px;
+    min-width:110px;
+  }
+  .stat .num{font-size:1.5rem; font-weight:600; color:var(--ledger-deep);}
+  .stat .label{font-size:0.72rem; color:var(--ink-soft);}
+  .small-btn{
+    padding:4px 10px;
+    font-size:0.76rem;
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    background:#fdfcf9;
+    cursor:pointer;
+    font-family:inherit;
+    margin-right:4px;
+  }
+  .small-btn.approve{border-color:#8fae86; color:var(--ledger-deep);}
+  .small-btn.approve:hover{background:var(--ok-bg);}
+  .small-btn.reject{border-color:#c99184; color:var(--danger);}
+  .small-btn.reject:hover{background:var(--danger-bg);}
+  .empty-note{color:var(--ink-soft); font-size:0.85rem; font-style:italic;}
+  .inline-form{display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px;}
+  .inline-form .field{margin-bottom:0; min-width:120px;}
+  .divider{border:none; border-top:1px solid var(--line); margin:18px 0;}
+  code.small{font-size:0.78rem; background:#efece2; padding:1px 5px; border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <div class="masthead">
+    <h1>Registrar</h1>
+    <span class="ledger-no" id="masthead-right">STUDENT MANAGEMENT SYSTEM</span>
+  </div>
+
+  <div class="api-strip">
+    <span>API base:</span>
+    <input id="apiBaseInput" value="http://localhost:7070" spellcheck="false">
+    <button class="link-btn" id="apiBaseSave">save</button>
+    <span id="apiBaseStatus"></span>
+  </div>
+
+  <!-- ================= AUTH GATE ================= -->
+  <div id="gate">
+    <div class="gate-tabs">
+      <button class="gate-tab active" data-gate="login">Sign in</button>
+      <button class="gate-tab" data-gate="register">Register</button>
+      <button class="gate-tab" data-gate="status">Check status</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="card" id="gate-login">
+      <h2>Sign in</h2>
+      <p class="sub">Enter the numeric ID and password assigned to your account.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginId">User ID</label>
+          <input id="loginId" type="number" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" required>
+        </div>
+        <button class="btn-primary" type="submit">Sign in</button>
+      </form>
+      <div id="loginMsg"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="card hidden" id="gate-register">
+      <h2>Request an account</h2>
+      <p class="sub">Submissions are reviewed by an admin before an ID is issued.</p>
+      <form id="registerForm">
+        <div class="field">
+          <label for="regName">Full name</label>
+          <input id="regName" type="text" required placeholder="Letters and spaces only">
+        </div>
+        <div class="field">
+          <label for="regAddress">Address</label>
+          <input id="regAddress" type="text" required>
+        </div>
+        <div class="field">
+          <label for="regRole">Role</label>
+          <select id="regRole">
+            <option value="1">Student</option>
+            <option value="2">Professor</option>
+            <option value="3">Admin</option>
+          </select>
+        </div>
+        <div id="regProfessorFields" class="row2 hidden">
+          <div class="field">
+            <label for="regDegree">Degree</label>
+            <input id="regDegree" type="text" placeholder="e.g. Ph.D. Computer Science">
+          </div>
+          <div class="field">
+            <label for="regCourseId">Course ID to teach</label>
+            <input id="regCourseId" type="number">
+          </div>
+        </div>
+        <div class="field">
+          <label for="regPassword">Password</label>
+          <input id="regPassword" type="password" required>
+        </div>
+        <button class="btn-primary" type="submit">Submit request</button>
+      </form>
+      <div id="registerMsg"></div>
+    </div>
+
+    <!-- STATUS CHECK -->
+    <div class="card hidden" id="gate-status">
+      <h2>Check registration status</h2>
+      <p class="sub">Look up a pending request by the name and password you submitted.</p>
+      <form id="statusForm">
+        <div class="field">
+          <label for="statusName">Full name</label>
+          <input id="statusName" type="text" required>
+        </div>
+        <div class="field">
+          <label for="statusPassword">Password</label>
+          <input id="statusPassword" type="password" required>
+        </div>
+        <button class="btn-primary" type="submit">Check status</button>
+      </form>
+      <div id="statusMsg"></div>
+    </div>
+  </div>
+
+  <!-- ================= DASHBOARD ================= -->
+  <div id="dash" class="hidden"></div>
+
+</div>
+
+<script>
+(function(){
+
+  /* ---------------- API base ---------------- */
+  var API = localStorage.getItem('sms_api_base') || 'http://localhost:7070';
+  document.getElementById('apiBaseInput').value = API;
+  document.getElementById('apiBaseSave').addEventListener('click', function(){
+    API = document.getElementById('apiBaseInput').value.replace(/\/$/, '');
+    localStorage.setItem('sms_api_base', API);
+    var s = document.getElementById('apiBaseStatus');
+    s.textContent = 'saved';
+    setTimeout(function(){ s.textContent = ''; }, 1500);
+  });
+
+  function api(path, opts){
+    opts = opts || {};
+    var headers = opts.headers || {};
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    return fetch(API + path, {
+      method: opts.method || 'GET',
+      headers: headers,
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    }).then(function(res){
+      return res.text().then(function(text){
+        var data;
+        try { data = text ? JSON.parse(text) : {}; } catch(e){ data = { error: text || ('HTTP ' + res.status) }; }
+        if (!res.ok){
+          var err = new Error(data.error || ('Request failed (' + res.status + ')'));
+          err.data = data;
+          throw err;
+        }
+        return data;
+      });
+    }).catch(function(e){
+      if (e instanceof TypeError){
+        throw new Error('Could not reach the API at ' + API + '. Confirm ApiServer is running and the address above is correct.');
+      }
+      throw e;
+    });
+  }
+
+  function showMsg(el, text, kind){
+    el.innerHTML = '';
+    if (!text) return;
+    var d = document.createElement('div');
+    d.className = 'msg ' + (kind || 'err');
+    d.textContent = text;
+    el.appendChild(d);
+  }
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+
+  var ROLE_NAMES = { STUDENT: 'Student', PROFESSOR: 'Professor', ADMIN: 'Admin' };
+
+  /* ---------------- Session ---------------- */
+  var session = null; // { id, role }
+  try {
+    var stored = localStorage.getItem('sms_session');
+    if (stored) session = JSON.parse(stored);
+  } catch(e){}
+
+  function setSession(s){
+    session = s;
+    if (s) localStorage.setItem('sms_session', JSON.stringify(s));
+    else localStorage.removeItem('sms_session');
+    render();
+  }
+
+  /* ---------------- Gate tab switching ---------------- */
+  var gateTabs = document.querySelectorAll('.gate-tab');
+  gateTabs.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gateTabs.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      ['login','register','status'].forEach(function(name){
+        document.getElementById('gate-' + name).classList.toggle('hidden', name !== btn.dataset.gate);
+      });
+    });
+  });
+
+  document.getElementById('regRole').addEventListener('change', function(){
+    document.getElementById('regProfessorFields').classList.toggle('hidden', this.value !== '2');
+  });
+
+  /* ---------------- Login ---------------- */
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = document.getElementById('loginMsg');
+    showMsg(msg, '');
+    var id = parseInt(document.getElementById('loginId').value, 10);
+    var password = document.getElementById('loginPassword').value;
+    api('/api/login', { method: 'POST', body: { id: id, password: password } })
+      .then(function(data){
+        setSession({ id: data.id, role: data.role });
+      })
+      .catch(function(err){ showMsg(msg, err.message, 'err'); });
+  });
+
+  /* ---------------- Register ---------------- */
+  document.getElementById('registerForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = document.getElementById('registerMsg');
+    showMsg(msg, '');
+    var role = document.getElementById('regRole').value;
+    var body = {
+      name: document.getElementById('regName').value,
+      address: document.getElementById('regAddress').value,
+      role: parseInt(role, 10),
+      password: document.getElementById('regPassword').value
+    };
+    if (role === '2'){
+      body.degree = document.getElementById('regDegree').value;
+      body.courseId = parseInt(document.getElementById('regCourseId').value, 10);
+    }
+    api('/api/register', { method: 'POST', body: body })
+      .then(function(data){
+        showMsg(msg, data.message || 'Registration submitted.', 'ok');
+        document.getElementById('registerForm').reset();
+      })
+      .catch(function(err){ showMsg(msg, err.message, 'err'); });
+  });
+
+  /* ---------------- Status check ---------------- */
+  document.getElementById('statusForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = document.getElementById('statusMsg');
+    showMsg(msg, '');
+    var name = encodeURIComponent(document.getElementById('statusName').value);
+    var password = encodeURIComponent(document.getElementById('statusPassword').value);
+    api('/api/registration-status?name=' + name + '&password=' + password)
+      .then(function(data){
+        var text = 'Status: ' + data.status + '.';
+        if (data.status === 'APPROVED') text += ' Role: ' + ROLE_NAMES[data.role] + '. Assigned ID: ' + data.assignedId + '.';
+        if (data.status === 'REJECTED') text += ' Reason: ' + data.reason;
+        showMsg(msg, text, data.status === 'REJECTED' ? 'err' : 'ok');
+      })
+      .catch(function(err){ showMsg(msg, err.message, 'err'); });
+  });
+
+  /* ---------------- Dashboard render ---------------- */
+  var dash = document.getElementById('dash');
+  var gate = document.getElementById('gate');
+  var mastheadRight = document.getElementById('masthead-right');
+
+  function render(){
+    if (!session){
+      gate.classList.remove('hidden');
+      dash.classList.add('hidden');
+      dash.innerHTML = '';
+      mastheadRight.textContent = 'STUDENT MANAGEMENT SYSTEM';
+      return;
+    }
+    gate.classList.add('hidden');
+    dash.classList.remove('hidden');
+    mastheadRight.innerHTML = '';
+
+    var sessionStrip = document.createElement('div');
+    sessionStrip.className = 'session-strip';
+    sessionStrip.innerHTML =
+      '<span>Signed in as <strong>#' + session.id + '</strong> &middot; ' + ROLE_NAMES[session.role] + '</span>';
+    var out = document.createElement('button');
+    out.className = 'btn-quiet';
+    out.textContent = 'Sign out';
+    out.addEventListener('click', function(){ setSession(null); });
+    sessionStrip.appendChild(out);
+    mastheadRight.appendChild(sessionStrip);
+
+    if (session.role === 'ADMIN') renderAdmin();
+    else if (session.role === 'STUDENT') renderStudent();
+    else if (session.role === 'PROFESSOR') renderProfessor();
+  }
+
+  function tabShell(tabs, initial){
+    var wrap = document.createElement('div');
+    var tabBar = document.createElement('div');
+    tabBar.className = 'tabs';
+    var body = document.createElement('div');
+
+    function activate(key){
+      Array.prototype.forEach.call(tabBar.children, function(b){
+        b.classList.toggle('active', b.dataset.key === key);
+      });
+      body.innerHTML = '';
+      var fn = tabs.filter(function(t){ return t.key === key; })[0];
+      if (fn) fn.render(body);
+    }
+
+    tabs.forEach(function(t){
+      var b = document.createElement('button');
+      b.className = 'tab';
+      b.dataset.key = t.key;
+      b.textContent = t.label;
+      b.addEventListener('click', function(){ activate(t.key); });
+      tabBar.appendChild(b);
+    });
+
+    wrap.appendChild(tabBar);
+    wrap.appendChild(body);
+    activate(initial || tabs[0].key);
+    return wrap;
+  }
+
+  function panel(title, sub){
+    var p = document.createElement('div');
+    p.className = 'panel';
+    var h = document.createElement('h3');
+    h.textContent = title;
+    p.appendChild(h);
+    if (sub){
+      var s = document.createElement('p');
+      s.className = 'sub';
+      s.textContent = sub;
+      p.appendChild(s);
+    }
+    return p;
+  }
+
+  /* ================= ADMIN ================= */
+  function renderAdmin(){
+    dash.innerHTML = '';
+    dash.appendChild(tabShell([
+      { key: 'pending', label: 'Pending registrations', render: renderAdminPending },
+      { key: 'users', label: 'Directory', render: renderAdminUsers },
+      { key: 'add', label: 'Add user', render: renderAdminAddUser }
+    ], 'pending'));
+  }
+
+  function renderAdminPending(container){
+    var p = panel('Pending registrations', 'Approve to issue an ID, or reject with a reason.');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+
+    function load(){
+      api('/api/admin/registrations/pending').then(function(list){
+        if (!list.length){ body.innerHTML = '<p class="empty-note">No requests waiting on review.</p>'; return; }
+        var table = document.createElement('table');
+        table.innerHTML =
+          '<thead><tr><th>Req #</th><th>Name</th><th>Address</th><th>Role</th><th>Extra</th><th></th></tr></thead>';
+        var tbody = document.createElement('tbody');
+        list.forEach(function(r){
+          var tr = document.createElement('tr');
+          var extra = r.role === 'PROFESSOR' ? ('Degree: ' + esc(r.degree) + ', Course ' + r.courseId) : '&mdash;';
+          tr.innerHTML =
+            '<td>' + r.requestId + '</td>' +
+            '<td>' + esc(r.name) + '</td>' +
+            '<td>' + esc(r.address) + '</td>' +
+            '<td>' + ROLE_NAMES[r.role] + '</td>' +
+            '<td>' + extra + '</td>' +
+            '<td></td>';
+          var cell = tr.lastElementChild;
+          var approveBtn = document.createElement('button');
+          approveBtn.className = 'small-btn approve';
+          approveBtn.textContent = 'Approve';
+          approveBtn.addEventListener('click', function(){
+            api('/api/admin/registrations/' + r.requestId + '/approve', { method: 'POST' })
+              .then(load)
+              .catch(function(e){ alert(e.message); });
+          });
+          var rejectBtn = document.createElement('button');
+          rejectBtn.className = 'small-btn reject';
+          rejectBtn.textContent = 'Reject';
+          rejectBtn.addEventListener('click', function(){
+            var reason = prompt('Reason for rejecting ' + r.name + '\'s request:');
+            if (reason === null) return;
+            api('/api/admin/registrations/' + r.requestId + '/reject', { method: 'POST', body: { reason: reason } })
+              .then(load)
+              .catch(function(e){ alert(e.message); });
+          });
+          cell.appendChild(approveBtn);
+          cell.appendChild(rejectBtn);
+          tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        body.innerHTML = '';
+        body.appendChild(table);
+      }).catch(function(e){
+        body.innerHTML = '';
+        showMsg(body, e.message, 'err');
+      });
+    }
+    load();
+  }
+
+  function renderAdminUsers(container){
+    var p = panel('Directory', 'Every student, professor, and admin currently on record.');
+    var stats = document.createElement('div');
+    stats.className = 'stat-row';
+    p.appendChild(stats);
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+
+    function stat(num, label){
+      var d = document.createElement('div');
+      d.className = 'stat';
+      d.innerHTML = '<div class="num">' + num + '</div><div class="label">' + label + '</div>';
+      return d;
+    }
+
+    function section(title, rows, cols){
+      var wrap = document.createElement('div');
+      var h = document.createElement('h4');
+      h.style.margin = '18px 0 6px';
+      h.style.fontSize = '0.88rem';
+      h.textContent = title;
+      wrap.appendChild(h);
+      if (!rows.length){
+        var e = document.createElement('p');
+        e.className = 'empty-note';
+        e.textContent = 'None on record.';
+        wrap.appendChild(e);
+        return wrap;
+      }
+      var table = document.createElement('table');
+      var thead = '<thead><tr>' + cols.map(function(c){ return '<th>' + c.label + '</th>'; }).join('') + '<th></th></tr></thead>';
+      var tbody = document.createElement('tbody');
+      rows.forEach(function(row){
+        var tr = document.createElement('tr');
+        tr.innerHTML = cols.map(function(c){ return '<td>' + esc(c.get(row)) + '</td>'; }).join('') + '<td></td>';
+        var cell = tr.lastElementChild;
+        var delBtn = document.createElement('button');
+        delBtn.className = 'small-btn reject';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', function(){
+          if (!confirm('Delete user #' + row.id + ' (' + row.name + ')? This cannot be undone.')) return;
+          var callingAdminId = session.id;
+          api('/api/admin/users/' + row.id + '?callingAdminId=' + callingAdminId, { method: 'DELETE' })
+            .then(load)
+            .catch(function(e){ alert(e.message); });
+        });
+        cell.appendChild(delBtn);
+        tbody.appendChild(tr);
+      });
+      table.innerHTML = thead;
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      return wrap;
+    }
+
+    function load(){
+      api('/api/admin/users').then(function(data){
+        stats.innerHTML = '';
+        stats.appendChild(stat(data.students.length, 'Students'));
+        stats.appendChild(stat(data.professors.length, 'Professors'));
+        stats.appendChild(stat(data.admins.length, 'Admins'));
+
+        body.innerHTML = '';
+        body.appendChild(section('Students', data.students, [
+          { label: 'ID', get: function(r){ return r.id; } },
+          { label: 'Name', get: function(r){ return r.name; } },
+          { label: 'Address', get: function(r){ return r.address; } },
+          { label: 'GPA', get: function(r){ return r.gpa; } }
+        ]));
+        body.appendChild(section('Professors', data.professors, [
+          { label: 'ID', get: function(r){ return r.id; } },
+          { label: 'Name', get: function(r){ return r.name; } },
+          { label: 'Address', get: function(r){ return r.address; } },
+          { label: 'Degree', get: function(r){ return r.degree; } }
+        ]));
+        body.appendChild(section('Admins', data.admins, [
+          { label: 'ID', get: function(r){ return r.id; } },
+          { label: 'Name', get: function(r){ return r.name; } },
+          { label: 'Address', get: function(r){ return r.address; } },
+          { label: 'Level', get: function(r){ return r.adminLevel; } }
+        ]));
+      }).catch(function(e){
+        body.innerHTML = '';
+        showMsg(body, e.message, 'err');
+      });
+    }
+    load();
+  }
+
+  function renderAdminAddUser(container){
+    var p = panel('Add a user directly', 'Bypasses the registration queue — issues an ID immediately.');
+    var msgBox = document.createElement('div');
+
+    var form = document.createElement('form');
+    form.innerHTML =
+      '<div class="row2">' +
+      '<div class="field"><label>Name</label><input id="au-name" required></div>' +
+      '<div class="field"><label>Address</label><input id="au-address" required></div>' +
+      '</div>' +
+      '<div class="row2">' +
+      '<div class="field"><label>Role</label><select id="au-role">' +
+      '<option value="1">Student</option><option value="2">Professor</option><option value="3">Admin</option>' +
+      '</select></div>' +
+      '<div class="field"><label>Password</label><input id="au-password" type="password" required></div>' +
+      '</div>' +
+      '<div id="au-extra" class="row2"></div>' +
+      '<button class="btn-primary" type="submit" style="width:auto; padding:9px 20px;">Add user</button>';
+    p.appendChild(form);
+    p.appendChild(msgBox);
+    container.appendChild(p);
+
+    var extra = form.querySelector('#au-extra');
+    function refreshExtra(){
+      var role = form.querySelector('#au-role').value;
+      if (role === '1'){
+        extra.innerHTML = '<div class="field"><label>GPA</label><input id="au-gpa" type="number" step="0.01" min="0" max="4" value="0"></div>';
+      } else if (role === '2'){
+        extra.innerHTML = '<div class="field"><label>Degree</label><input id="au-degree"></div>';
+      } else {
+        extra.innerHTML = '<div class="field"><label>Admin level</label><select id="au-level"><option value="1">Super Admin</option><option value="2">Regular Admin</option></select></div>';
+      }
+    }
+    refreshExtra();
+    form.querySelector('#au-role').addEventListener('change', refreshExtra);
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      showMsg(msgBox, '');
+      var role = parseInt(form.querySelector('#au-role').value, 10);
+      var body = {
+        role: role,
+        name: form.querySelector('#au-name').value,
+        address: form.querySelector('#au-address').value,
+        password: form.querySelector('#au-password').value
+      };
+      if (role === 1) body.gpa = parseFloat(form.querySelector('#au-gpa').value);
+      else if (role === 2) body.degree = form.querySelector('#au-degree').value;
+      else body.adminLevel = parseInt(form.querySelector('#au-level').value, 10);
+
+      api('/api/admin/users?callingAdminId=' + session.id, { method: 'POST', body: body })
+        .then(function(data){
+          showMsg(msgBox, 'Added. New ID: ' + data.id, 'ok');
+          form.reset();
+          refreshExtra();
+        })
+        .catch(function(e){ showMsg(msgBox, e.message, 'err'); });
+    });
+  }
+
+  /* ================= STUDENT ================= */
+  function renderStudent(){
+    dash.innerHTML = '';
+    dash.appendChild(tabShell([
+      { key: 'profile', label: 'Profile', render: renderStudentProfile },
+      { key: 'plan', label: 'Academic plan', render: renderStudentPlan },
+      { key: 'enroll', label: 'Enroll', render: renderStudentEnroll },
+      { key: 'history', label: 'Enrollment history', render: renderStudentHistory }
+    ], 'profile'));
+  }
+
+  function renderStudentProfile(container){
+    var p = panel('Profile');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+    api('/api/students/' + session.id).then(function(s){
+      body.innerHTML =
+        '<div class="stat-row">' +
+        '<div class="stat"><div class="num">' + s.id + '</div><div class="label">Student ID</div></div>' +
+        '<div class="stat"><div class="num">' + s.gpa + '</div><div class="label">GPA</div></div>' +
+        '</div>' +
+        '<table><tbody>' +
+        '<tr><th>Name</th><td>' + esc(s.name) + '</td></tr>' +
+        '<tr><th>Address</th><td>' + esc(s.address) + '</td></tr>' +
+        '</tbody></table>';
+    }).catch(function(e){ body.innerHTML = ''; showMsg(body, e.message, 'err'); });
+  }
+
+  function courseTable(courses, extraCol){
+    if (!courses.length) return '<p class="empty-note">None.</p>';
+    var head = '<th>ID</th><th>Course</th><th>Credit hrs</th><th>Min GPA</th>' + (extraCol ? '<th></th>' : '');
+    var rows = courses.map(function(c){
+      return '<tr><td>' + c.courseId + '</td><td>' + esc(c.courseName) + '</td><td>' + c.creditHours + '</td><td>' + c.minGpaRequired + '</td>' +
+        (extraCol ? '<td data-course-id="' + c.courseId + '"></td>' : '') + '</tr>';
+    }).join('');
+    return '<table><thead><tr>' + head + '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function renderStudentPlan(container){
+    var p = panel('Academic plan', 'Courses completed so far and what remains toward the degree.');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+    api('/api/students/' + session.id + '/academic-plan').then(function(data){
+      body.innerHTML =
+        '<h4 style="font-size:0.88rem;margin:0 0 6px;">Completed</h4>' + courseTable(data.completed) +
+        '<hr class="divider">' +
+        '<h4 style="font-size:0.88rem;margin:0 0 6px;">Remaining</h4>' + courseTable(data.remaining);
+    }).catch(function(e){ body.innerHTML = ''; showMsg(body, e.message, 'err'); });
+  }
+
+  function renderStudentEnroll(container){
+    var p = panel('Eligible courses', 'Courses you meet the GPA requirement for and are not yet enrolled in.');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+
+    function load(){
+      api('/api/students/' + session.id + '/eligible-courses').then(function(courses){
+        if (!courses.length){ body.innerHTML = '<p class="empty-note">No eligible courses right now.</p>'; return; }
+        body.innerHTML = courseTable(courses, true);
+        courses.forEach(function(c){
+          var cell = body.querySelector('td[data-course-id="' + c.courseId + '"]');
+          var btn = document.createElement('button');
+          btn.className = 'small-btn approve';
+          btn.textContent = 'Enroll';
+          btn.addEventListener('click', function(){
+            api('/api/students/' + session.id + '/enrollments', { method: 'POST', body: { courseId: c.courseId } })
+              .then(load)
+              .catch(function(e){ alert(e.message); });
+          });
+          cell.appendChild(btn);
+        });
+      }).catch(function(e){ body.innerHTML = ''; showMsg(body, e.message, 'err'); });
+    }
+    load();
+  }
+
+  function renderStudentHistory(container){
+    var p = panel('Enrollment history');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+    api('/api/students/' + session.id + '/enrollments').then(function(list){
+      if (!list.length){ body.innerHTML = '<p class="empty-note">No enrollments on record.</p>'; return; }
+      var rows = list.map(function(en){
+        return '<tr><td>' + en.courseId + '</td><td>' + esc(en.term) + '</td><td>' + en.grade + '</td>' +
+          '<td><span class="pill ' + en.status.toLowerCase() + '">' + en.status + '</span></td></tr>';
+      }).join('');
+      body.innerHTML = '<table><thead><tr><th>Course ID</th><th>Term</th><th>Grade</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }).catch(function(e){ body.innerHTML = ''; showMsg(body, e.message, 'err'); });
+  }
+
+  /* ================= PROFESSOR ================= */
+  function renderProfessor(){
+    dash.innerHTML = '';
+    dash.appendChild(tabShell([
+      { key: 'profile', label: 'Profile', render: renderProfProfile },
+      { key: 'students', label: 'My students', render: renderProfStudents },
+      { key: 'grades', label: 'Enter grade', render: renderProfGrades }
+    ], 'profile'));
+  }
+
+  function renderProfProfile(container){
+    var p = panel('Profile');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+
+    api('/api/professors/' + session.id).then(function(prof){
+      body.innerHTML =
+        '<div class="row2">' +
+        '<div class="field"><label>Name</label><input id="pp-name" value="' + esc(prof.name) + '"></div>' +
+        '<div class="field"><label>Address</label><input id="pp-address" value="' + esc(prof.address) + '"></div>' +
+        '</div>' +
+        '<div class="field" style="max-width:280px;"><label>Degree</label><input id="pp-degree" value="' + esc(prof.degree) + '"></div>' +
+        '<button class="btn-primary" id="pp-save" style="width:auto;padding:9px 20px;">Save changes</button>' +
+        '<div id="pp-msg"></div>';
+      document.getElementById('pp-save').addEventListener('click', function(){
+        var msgBox = document.getElementById('pp-msg');
+        showMsg(msgBox, '');
+        api('/api/professors/' + session.id, {
+          method: 'PUT',
+          body: {
+            name: document.getElementById('pp-name').value,
+            address: document.getElementById('pp-address').value,
+            degree: document.getElementById('pp-degree').value
+          }
+        }).then(function(data){ showMsg(msgBox, data.message || 'Saved.', 'ok'); })
+          .catch(function(e){ showMsg(msgBox, e.message, 'err'); });
+      });
+    }).catch(function(e){ body.innerHTML = ''; showMsg(body, e.message, 'err'); });
+  }
+
+  function renderProfStudents(container){
+    var p = panel('My students', 'Students currently enrolled in courses you teach.');
+    var body = document.createElement('div');
+    body.innerHTML = '<span class="empty-note">Loading…</span>';
+    p.appendChild(body);
+    container.appendChild(p);
+    api('/api/professors/' + session.id + '/students').then(function(list){
+      if (!list.length){ body.innerHTML = '<p class="empty-note">No students enrolled in your courses yet.</p>'; return; }
+      var rows = list.map(function(s){
+        return '<tr><td>' + s.id + '</td><td>' + esc(s.name) + '</td><td>' + esc(s.address) + '</td><td>' + s.gpa + '</td></tr>';
+      }).join('');
+      body.innerHTML = '<table><thead><tr><th>ID</th><th>Name</th><th>Address</th><th>GPA</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }).catch(function(e){ body.innerHTML = ''; showMsg(body, e.message, 'err'); });
+  }
+
+  function renderProfGrades(container){
+    var p = panel('Enter a grade', 'Records or updates a grade for a student in one of your courses.');
+    var msgBox = document.createElement('div');
+    var form = document.createElement('form');
+    form.innerHTML =
+      '<div class="row2">' +
+      '<div class="field"><label>Student ID</label><input id="pg-student" type="number" required></div>' +
+      '<div class="field"><label>Course ID</label><input id="pg-course" type="number" required></div>' +
+      '</div>' +
+      '<div class="row2">' +
+      '<div class="field"><label>Term</label><input id="pg-term" placeholder="Fall2026"></div>' +
+      '<div class="field"><label>Grade (0.0&ndash;4.0)</label><input id="pg-grade" type="number" step="0.01" min="0" max="4" required></div>' +
+      '</div>' +
+      '<div class="field" style="max-width:220px;"><label>Status</label><select id="pg-status">' +
+      '<option value="1">Enrolled</option><option value="2">Completed</option><option value="3">Failed</option><option value="4">Dropped</option>' +
+      '</select></div>' +
+      '<button class="btn-primary" type="submit" style="width:auto;padding:9px 20px;">Save grade</button>';
+    p.appendChild(form);
+    p.appendChild(msgBox);
+    container.appendChild(p);
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      showMsg(msgBox, '');
+      var body = {
+        studentId: parseInt(form.querySelector('#pg-student').value, 10),
+        courseId: parseInt(form.querySelector('#pg-course').value, 10),
+        grade: parseFloat(form.querySelector('#pg-grade').value),
+        status: parseInt(form.querySelector('#pg-status').value, 10)
+      };
+      var term = form.querySelector('#pg-term').value;
+      if (term) body.term = term;
+      api('/api/professors/' + session.id + '/grades', { method: 'POST', body: body })
+        .then(function(data){ showMsg(msgBox, data.message || 'Saved.', 'ok'); form.reset(); })
+        .catch(function(e){ showMsg(msgBox, e.message, 'err'); });
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
